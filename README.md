@@ -1,10 +1,14 @@
 # Direct3D-V3 + UltraTex for ComfyUI - sharp, textured 3D models from one image
 
+![One image > Direct3D-V3 refined geometry > UltraTex texture](docs/images/cover.jpg)
+
 Turns **one image** into a **detailed, textured 3D model**, free and local in ComfyUI: TRELLIS.2 builds the coarse model, **Direct3D-V3** refines it at 1536, **UltraTex** paints it.
 
-![The same dwarf: TRELLIS.2 coarse mesh (left) and after the max-detail Direct3D-V3 workflow (right)](docs/images/dwarf_before_after.jpg)
-
 This pack is the installer and the workflows from my video. Everything here was measured on one PC: **RTX 5080 16 GB, 48 GB RAM, Windows 11, ComfyUI 0.45.4**. What was not tested is listed at the end; please read it.
+
+**What Direct3D-V3 adds:** the same dwarf as TRELLIS.2 coarse mesh (left) and after the max-detail workflow (right).
+
+![The same dwarf: TRELLIS.2 coarse mesh (left) and after the max-detail Direct3D-V3 workflow (right)](docs/images/dwarf_before_after.jpg)
 
 ## Which workflow?
 
