@@ -422,7 +422,7 @@ echo  Workflows...
 set "WF_SRC="
 if exist "%~dp0workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0workflows"
 if not defined WF_SRC if exist "%~dp0..\workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0..\workflows"
-set "WF_DST=%COMFY%\user\default\workflows"
+set "WF_DST=%COMFY%\user\default\workflows\PixelArtistry\Direct3D-V3"
 if not defined WF_SRC (
     echo        No workflows folder next to this installer - skipped.
     goto :workflows_done
@@ -434,7 +434,8 @@ for %%F in ("%WF_SRC%\*.json") do call :copy_workflow "%%~fF" "%%~nxF"
 rem ---------------------------------------------------------------- summary
 echo.
 echo  ============================================================
-echo    Done. Start ComfyUI and open "PixelArtistry_Direct3D_01_Default".
+echo    Done. Start ComfyUI, open the Workflows list, then the folder
+echo    PixelArtistry ^> Direct3D-V3 and "PixelArtistry_Direct3D_01_Default".
 echo  ============================================================
 echo.
 echo    The image-to-3D part of the workflows uses ComfyUI's own TRELLIS.2 nodes

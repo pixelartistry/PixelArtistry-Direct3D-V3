@@ -60,7 +60,7 @@ Other portable installs: put the unzipped folder next to `python_embeded` and ru
 - **UltraTex Modular nodes** ([Mstafa-awad/UltraTex-ComfyUI-nodes](https://github.com/Mstafa-awad/UltraTex-ComfyUI-nodes)), **ComfyUI-GGUF** ([city96/ComfyUI-GGUF](https://github.com/city96/ComfyUI-GGUF)) and **WTiVo nodes** ([Mstafa-awad/WTiVo-WatertightVoxel-ComfyuiNode](https://github.com/Mstafa-awad/WTiVo-WatertightVoxel-ComfyuiNode)): pinned commits.
 - Adds `trimesh`, `moderngl`, `glcontext`, `scipy`, `einops`, `psutil`, `threadpoolctl` and `gguf` to ComfyUI's Python **only if they are missing**. It does a dry run first and stops if pip would change a package you already have. It never installs or changes Triton; it tells you if Triton is missing.
 - **UltraTex models:** FLUX.2 klein base 9B Q4_0 GGUF (5.2 GB), Qwen3-8B Q6_K GGUF (6.3 GB), FLUX.2 VAE (0.3 GB), UltraTex LoRA (0.5 GB) and decoder (0.1 GB), checked by SHA-256 where a checksum is known. Files that are already in `ComfyUI\models` are kept.
-- Copies the workflows into `ComfyUI\user\default\workflows`. It never overwrites a workflow that is already there.
+- Copies the workflows into `ComfyUI\user\default\workflows\PixelArtistry\Direct3D-V3`, so they appear as the folder **PixelArtistry > Direct3D-V3** in ComfyUI's Workflows list. It never overwrites a workflow that is already there.
 - Safe to run twice. Prints how to undo everything at the end.
 
 Options: `Install-Direct3D-V3-UltraTex.bat NoModels` installs nodes and environments without downloading any model; `NoPause` runs without questions.
