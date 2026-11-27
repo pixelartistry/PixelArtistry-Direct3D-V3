@@ -13,12 +13,12 @@ All of them share one canvas: image > TRELLIS.2 > cleanup switch (WTiVo or remes
 | Workflow | What is different |
 |---|---|
 | **PixelArtistry_Direct3D_01_Default** | The standard pipeline: WTiVo cleanup, Direct3D-V3 cascade with 16 steps, UltraTex texture. **Start here.** |
-| **PixelArtistry_Direct3D_02_Max_Detail** | Most detail: clay version of your image as the reference (Qwen Image 2.1), raw coarse mesh, single stage, 16 steps, `fdg` guidance at 9. Needs the Qwen Image 2.1 models. |
+| **PixelArtistry_Direct3D_02_Max_Detail** | Most detail: you upload your colour image **and a grey clay version of it** (make it with workflow 07). Direct3D-V3 reads the clay image, TRELLIS.2 and UltraTex the colour image. Raw coarse mesh, single stage, 16 steps, `fdg` guidance at 9. |
 | **PixelArtistry_Direct3D_03_Multiview** | Adds back, left and right images for Direct3D-V3. |
 | **PixelArtistry_Direct3D_04_Low_Poly** | Decimates to 20,000 triangles before texturing: a game-ready character. |
 | **PixelArtistry_Direct3D_05_Low_VRAM** | `max_tokens` at 75,000; the note lists the value per card size. |
 | **PixelArtistry_Direct3D_06_Your_Mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
-| **PixelArtistry_Direct3D_07_Clay_Image** | Helper: turns your image into a grey clay render with Qwen Image 2.1 (about 4.5 minutes, 15 GB VRAM on my card). Use it as the reference image of Direct3D-V3. Needs the Qwen Image 2.1 models. |
+| **PixelArtistry_Direct3D_07_Clay_Image** | Helper: turns your image into a grey clay render with Qwen Image 2.1 (about 4.5 minutes, 15 GB VRAM on my card). Upload the result in workflow 02. Needs the Qwen Image 2.1 models. |
 
 > **State:** workflows 1 to 5 were assembled by script on 27 November and load in ComfyUI without missing nodes or errors. **Workflow 05 has run end to end** (see "How much VRAM"). Workflows 01 to 04 share its canvas and texture stage but **have not been run yet** in this form.
 
