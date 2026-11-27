@@ -146,7 +146,6 @@ Not tested:
 - **FLUX.2 klein base 9B** (Black Forest Labs; GGUF file by unsloth): **FLUX Non-Commercial License**. Not included. Read the licence yourself before you use the model or its results for paid work.
 - **Qwen3-8B** (GGUF file by unsloth): Apache-2.0.
 - **WTiVo** (Mstafa-awad): GPL-3.0-or-later.
-- Workflows 1 to 5 include MostAadTech's support note; please keep it if you share them.
 
 No model weights are in this repository. Every file is downloaded from its original publisher.
 
