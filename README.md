@@ -63,7 +63,9 @@ Other portable installs: put the unzipped folder next to `python_embeded` and ru
 - Copies the workflows into `ComfyUI\user\default\workflows\PixelArtistry\Direct3D-V3`, so they appear as the folder **PixelArtistry > Direct3D-V3** in ComfyUI's Workflows list. It never overwrites a workflow that is already there.
 - Safe to run twice. Prints how to undo everything at the end.
 
-Options: `Install-Direct3D-V3-UltraTex.bat NoModels` installs nodes and environments without downloading any model; `NoPause` runs without questions.
+**Already have the models?** At the start the installer asks whether to download the missing models or skip all model downloads. Models already in the folders the installer uses (`ComfyUI\models`, and the Direct3D-V3 node folder for its own models) are never downloaded again either way. If your models are in another folder (set in `extra_model_paths.yaml`), choose skip: the installer does not look there. When you skip, it prints the folders and file names the nodes need.
+
+Options: `Install-Direct3D-V3-UltraTex.bat NoModels` does the same as choosing "skip" (nodes and environments, no model download); `NoPause` runs without questions.
 
 **WTiVo on RTX 20 / 30 / 40 cards:** the pack ships binaries for the RTX 50 series. On older cards, extract the "ForNonBlackwellgpu" archive inside its `build` folder, as its README describes.
 

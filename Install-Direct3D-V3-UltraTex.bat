@@ -42,6 +42,7 @@ rem  Options (any order):
 rem    NoPause   no questions (1536 stage only) and no pause at the end; needs a
 rem              Hugging Face token in HF_TOKEN or a saved login for the gated models
 rem    NoModels  install nodes and environments only, download no model at all
+rem              (without options, the installer asks the same thing at the start)
 rem
 rem  TESTED ON: Windows 11, RTX 5080 16 GB, 48 GB RAM, embedded Python 3.12.10,
 rem  PyTorch 2.8.0+cu128, ComfyUI 0.45.4. See README.md for what exactly was tested.
@@ -186,6 +187,17 @@ set "NEED_GB=30"
 if defined NOPAUSE goto :stage_done
 if defined NOMODELS goto :stage_done
 echo.
+echo        Models: Direct3D-V3 ^(about 5 GB^) and UltraTex ^(about 12 GB^).
+echo        Models already in the folders this installer uses are never downloaded again.
+echo        Models in other folders ^(extra_model_paths.yaml^) are not seen: choose 2 for those.
+echo          1 = download the models that are missing  ^(recommended^)
+echo          2 = skip all model downloads  ^(I have the models already^)
+choice /c 12 /n /m "        Your choice [1/2] "
+if errorlevel 2 (
+    set "NOMODELS=1"
+    goto :stage_done
+)
+echo.
 echo        Which model stages?
 echo          1 = 1536 only  ^(recommended; 1.3 GB + the 3.4 GB image encoder^)
 echo          2 = 512, 1024 and 1536  ^(for cascade mode; 3.9 GB + the 3.4 GB image encoder^)
@@ -268,13 +280,14 @@ if defined HAVE_RT if defined HAVE_MODELS (
     echo        Already complete - nothing to download.
     goto :setup_done
 )
+if defined NOMODELS if not defined HAVE_MODELS call :d3d_model_hint
 if defined NOMODELS if defined HAVE_RT (
-    echo        Worker environment is there. NoModels: no model downloaded.
+    echo        Worker environment is there. No model downloaded.
     goto :setup_done
 )
 if defined NOMODELS (
     set "HAVE_MODELS=1"
-    echo        NoModels: building the worker environment only.
+    echo        Building the worker environment only, no model download.
 )
 if defined HAVE_MODELS goto :run_setup
 echo.
@@ -359,7 +372,13 @@ rem ---------------------------------------------------------------- 8. UltraTex
 echo.
 echo  [8/9] UltraTex models...
 if defined NOMODELS (
-    echo        NoModels: skipped. The files UltraTex needs are listed in README.md.
+    echo        Model download skipped. UltraTex needs these files in %CMODELS%:
+    echo          vae\flux2-vae.safetensors
+    echo          text_encoders\%QWEN_FILE%
+    echo          loras\ultratex_flux2.safetensors
+    echo          ultratex\ultratex_flux2_decoder.pt
+    echo          diffusion_models\%KLEIN_FILE%
+    echo        Folders you set in extra_model_paths.yaml work too.
     goto :ut_models_done
 )
 call :get_file "%CMODELS%\vae" "flux2-vae.safetensors" "%COMFYORG%/vae/flux2-vae.safetensors" ""
@@ -475,6 +494,16 @@ echo  Installation stopped.
 echo.
 if not defined NOPAUSE pause
 exit /b 1
+
+rem ==========================================================================
+:d3d_model_hint
+echo        Model download skipped. Direct3D-V3 looks for its models here:
+echo          %MODELS%
+echo        It needs model_index.json, image_encoder\ and shape_transformers_1536\
+echo        ^(plus shape_transformers_512\ and _1024\ for cascade mode^).
+echo        Copy them there from your earlier install, or run this installer again
+echo        and choose 1 to download what is missing.
+exit /b 0
 
 rem ==========================================================================
 :copy_workflow
