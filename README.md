@@ -19,9 +19,9 @@ All of them share one canvas: image > TRELLIS.2 > cleanup switch (WTiVo or remes
 | **PixelArtistry_Direct3D_05_Low_VRAM** | `max_tokens` at 75,000; the note lists the value per card size. |
 | **PixelArtistry_Direct3D_06_Your_Mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
 
-> **State:** workflows 1 to 5 were assembled by script on 27 November. They **load in ComfyUI without missing nodes or errors, but have not been run yet** in this form. Their Direct3D-V3 part ran in the workflows they were built from; the texture stage with MostAadTech's UltraTex nodes is new here and untested.
+> **State:** workflows 1 to 5 were assembled by script on 27 November and load in ComfyUI without missing nodes or errors. **Workflow 05 has run end to end** (see "How much VRAM"). Workflows 01 to 04 share its canvas and texture stage but **have not been run yet** in this form.
 
-The texture stage uses **MostAadTech's UltraTex Modular nodes** with GGUF models (FLUX.2 klein base 9B Q4_0, Qwen3-8B Q6_K): 10 views at 1024, baked at 2048, albedo only. On bigger cards, raise `view_resolution` to 2048 and `texture_size` to 4096.
+The texture stage uses **MostAadTech's UltraTex Modular nodes** with GGUF models (FLUX.2 klein base 9B Q4_0, Qwen3-8B Q6_K): 10 views at 1024 with 25 steps, baked at 2048, albedo only. On bigger cards, raise `view_resolution` to 2048 and `texture_size` to 4096.
 
 Workflows 1 to 5 need Direct3D-V3, UltraTex Modular, ComfyUI-GGUF and WTiVo (all installed by this installer) plus **one node from [kijai/ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes)**, which this installer does not install because its requirements touch a package many other nodes share (OpenCV). Install it with ComfyUI Manager if ComfyUI reports it missing.
 
@@ -87,7 +87,19 @@ VRAM used by the Direct3D-V3 step alone. It follows the size of the model (the t
 
 The limits were held by a second program on my 16 GB card. That is a software limit, **not a real smaller card**. Lowering `max_tokens` scales big models down, so they lose detail. With TRELLIS.2 in the same run, system RAM peaked at 42 to 45 GB of my 48 GB.
 
-**Not measured yet:** TRELLIS.2 under a limit, and the texture stage with the UltraTex Modular nodes. Its author reports an 8 GB RTX 5050 laptop card; that is his number, not mine.
+### The whole low-VRAM workflow under an 8 GB software limit
+
+`PixelArtistry_Direct3D_05_Low_VRAM` as delivered, on a small character (60,832 tokens), with only about 8 GB of VRAM left free on my 16 GB card: **it ran through in 574 s, and no stage used more than 7.2 GB.**
+
+| Stage | Time | Peak VRAM |
+|---|---|---|
+| Text encoder (Qwen3-8B GGUF) and cut-out | 92 s | 7.1 GB |
+| TRELLIS.2 coarse mesh | 65 s | 7.2 GB |
+| WTiVo cleanup | 34 s | about 1 GB |
+| Direct3D-V3 cascade 512 > 1024 > 1536 | 190 s | 4.6 to 5.3 GB |
+| UltraTex prepare, generate (25 steps) and bake | 194 s | 5.6 to 6.5 GB |
+
+System RAM is the tight part: ComfyUI peaked at 20.6 GB of RAM. This is a software limit, not a real 8 GB card: ComfyUI saw a 16 GB card with 8 GB free, and on a real 8 GB card the desktop needs part of those 8 GB too. The UltraTex pack's author reports a real 8 GB RTX 5050 laptop card; that is his number, not mine.
 
 ## Settings that matter
 
@@ -109,10 +121,11 @@ Tested on the PC named above:
 - The max-detail recipe as a workflow end to end from a fresh ComfyUI start (507 s for the whole job), in its earlier form without the texture stage.
 - The installer on a clean folder with `NoModels`: see `docs/installer_test.md`.
 - All six workflow files load in ComfyUI without missing nodes or errors.
+- `PixelArtistry_Direct3D_05_Low_VRAM` end to end from a fresh ComfyUI start under an 8 GB software limit, twice (4 and 25 texture steps).
 
 Not tested:
 
-- **The six workflow files as a run.** In particular the texture stage with the UltraTex Modular nodes has not run in these workflows.
+- **Workflows 01 to 04 and 06 as a run in their current form.** Only 05 has run end to end.
 - **The model downloads of this installer** (my PC already had every model).
 - Any other GPU; real 6, 8 or 12 GB cards; a PC with 32 GB RAM or less; Windows 10; a first-time Hugging Face login.
 - WTiVo on a card older than the RTX 50 series.
