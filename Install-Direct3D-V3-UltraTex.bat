@@ -58,6 +58,8 @@ for %%A in (%*) do (
     if /i "%%~A"=="NoModels" set "NOMODELS=1"
 )
 
+set "WF_REPO=https://github.com/pixelartistry/PixelArtistry-Direct3D-V3"
+set "WF_URL=https://raw.githubusercontent.com/pixelartistry/PixelArtistry-Direct3D-V3/main/workflows"
 set "COMMIT=bb4cdc9ef50b00e5278b9755cb777c4a46a017ad"
 set "ZIP_NAME=ComfyUI-Direct3D-V3-Windows-cu128_int8_v2.zip"
 set "ZIP_URL=https://github.com/Mstafa-awad/Direct3D-V3_Comfyui_Nodes/raw/%COMMIT%/%ZIP_NAME%"
@@ -442,19 +444,35 @@ set "WF_SRC="
 if exist "%~dp0workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0workflows"
 if not defined WF_SRC if exist "%~dp0..\workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0..\workflows"
 set "WF_DST=%COMFY%\user\default\workflows\PixelArtistry\Direct3D-V3"
-if not defined WF_SRC (
-    echo        No workflows folder next to this installer - skipped.
+set "WF_OK="
+if not exist "%WF_DST%" mkdir "%WF_DST%"
+if defined WF_SRC (
+    for %%F in ("%WF_SRC%\*.json") do call :copy_workflow "%%~fF" "%%~nxF"
+    set "WF_OK=1"
     goto :workflows_done
 )
-if not exist "%WF_DST%" mkdir "%WF_DST%"
-for %%F in ("%WF_SRC%\*.json") do call :copy_workflow "%%~fF" "%%~nxF"
+rem Only the .bat was downloaded (for example into Add-Ons): fetch the workflows from the repository.
+echo        No workflows folder next to this installer - downloading them from GitHub.
+set "WF_OK=1"
+for %%N in (01_Default 02_Max_Detail 03_Multiview 04_Low_Poly 05_Low_VRAM 06_Your_Mesh 07_Clay_Image) do (
+    call :get_workflow "PixelArtistry_Direct3D_%%N.json"
+)
+if not defined WF_OK (
+    echo  [WARNING] Not all workflows could be downloaded. Get them from the "workflows" folder of
+    echo            %WF_REPO%
+    echo            and put them into %WF_DST%
+)
 :workflows_done
 
 rem ---------------------------------------------------------------- summary
 echo.
 echo  ============================================================
-echo    Done. Start ComfyUI, open the Workflows list, then the folder
-echo    PixelArtistry ^> Direct3D-V3 and "PixelArtistry_Direct3D_01_Default".
+if defined WF_OK (
+    echo    Done. Start ComfyUI, open the Workflows list, then the folder
+    echo    PixelArtistry ^> Direct3D-V3 and "PixelArtistry_Direct3D_01_Default".
+) else (
+    echo    Done, but the workflows are missing - see the warning above.
+)
 echo  ============================================================
 echo.
 echo    The image-to-3D part of the workflows uses ComfyUI's own TRELLIS.2 nodes
@@ -503,6 +521,24 @@ echo        It needs model_index.json, image_encoder\ and shape_transformers_153
 echo        ^(plus shape_transformers_512\ and _1024\ for cascade mode^).
 echo        Copy them there from your earlier install, or run this installer again
 echo        and choose 1 to download what is missing.
+exit /b 0
+
+rem ==========================================================================
+:get_workflow
+rem %1 = file name. Never overwrites a workflow that is already there; clears WF_OK on a failed download.
+if exist "%WF_DST%\%~1" (
+    echo        Kept your existing %~1
+    exit /b 0
+)
+curl -L --fail -s -o "%WF_DST%\%~1.part" "%WF_URL%/%~1"
+if errorlevel 1 (
+    echo        Could not download %~1
+    if exist "%WF_DST%\%~1.part" del "%WF_DST%\%~1.part"
+    set "WF_OK="
+    exit /b 0
+)
+move /y "%WF_DST%\%~1.part" "%WF_DST%\%~1" >nul
+echo        Added %~1
 exit /b 0
 
 rem ==========================================================================
