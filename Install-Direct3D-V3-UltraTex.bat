@@ -409,8 +409,8 @@ rem ---------------------------------------------------------------- 8. workflow
 echo.
 echo  Workflows...
 set "WF_SRC="
-if exist "%~dp0workflows\direct3d-v3_default.json" set "WF_SRC=%~dp0workflows"
-if not defined WF_SRC if exist "%~dp0..\workflows\direct3d-v3_default.json" set "WF_SRC=%~dp0..\workflows"
+if exist "%~dp0workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0workflows"
+if not defined WF_SRC if exist "%~dp0..\workflows\PixelArtistry_Direct3D_01_Default.json" set "WF_SRC=%~dp0..\workflows"
 set "WF_DST=%COMFY%\user\default\workflows"
 if not defined WF_SRC (
     echo        No workflows folder next to this installer - skipped.
