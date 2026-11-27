@@ -10,24 +10,27 @@ rem
 rem  Installs four things, each only if it is not there yet:
 rem    1. Direct3D-V3 nodes  Mstafa-awad/Direct3D-V3_Comfyui_Nodes (cu128 INT8 v2 build, MIT),
 rem                          pinned to the tested commit and checked by SHA-256
-rem    2. UltraTex nodes     visualbruno/ComfyUI-UltraTex (MIT), pinned commit
+rem    2. UltraTex nodes     Mstafa-awad/UltraTex-ComfyUI-nodes ("UltraTex Modular", GPL-3.0), pinned commit,
+rem                          and city96/ComfyUI-GGUF (Apache-2.0) for its GGUF model loaders
 rem    3. WTiVo nodes        Mstafa-awad/WTiVo-WatertightVoxel-ComfyuiNode (GPL-3.0-or-later), pinned commit
 rem    4. Models             Direct3D-V3 INT8 stages (MostAadTech/Direct3D-V3-INT8, MIT),
 rem                          DINOv3 ViT-H+ (Meta, DINOv3 License, GATED),
 rem                          UltraTex LoRA + decoder (Yibo-Zhang/UltraTex on ModelScope),
-rem                          FLUX.2 VAE + Qwen3 8B text encoder (Comfy-Org/flux2-klein-9B),
-rem                          FLUX.2 klein base 9B fp8 (Black Forest Labs, FLUX Non-Commercial
-rem                          License, GATED: you download it with your own Hugging Face login)
+rem                          FLUX.2 VAE (Comfy-Org/flux2-klein-9B),
+rem                          FLUX.2 klein base 9B Q4_0 GGUF (unsloth; FLUX Non-Commercial License),
+rem                          Qwen3-8B Q6_K GGUF text encoder (unsloth, Apache-2.0)
 rem
 rem  Direct3D-V3 runs in a PRIVATE Python environment inside its node folder
 rem  (.runtime). UltraTex and WTiVo run in ComfyUI's Python; for them this
-rem  installer adds only packages that are missing (trimesh, moderngl, xatlas,
-rem  scipy) and never changes a version that is already installed. It saves the
-rem  package list before and after and shows what was added.
+rem  installer adds only packages that are missing (trimesh, moderngl, glcontext,
+rem  scipy, einops, psutil, threadpoolctl, gguf) and never changes a version that
+rem  is already installed. It never installs or changes Triton; it only tells you
+rem  if Triton is missing. It saves the package list before and after and shows
+rem  what was added.
 rem
 rem  Needs: NVIDIA RTX card, 64-bit Python 3.12 installed on the PC (python.org,
 rem  with the "py" launcher), ComfyUI with Python 3.12 and PyTorch 2.8 + CUDA 12.8,
-rem  about 32 GB free disk space for everything, internet.
+rem  about 30 GB free disk space for everything, internet.
 rem
 rem  Run it from one of these places:
 rem    - ComfyUI-Easy-Install\Add-Ons\<any folder>\
@@ -61,16 +64,22 @@ set "ZIP_SHA=d377591ad4414ed6a3999abe4ae96f24e28f8134cc8202e753a017f52a9c06d6"
 set "NODE_NAME=ComfyUI-Direct3D-V3"
 set "TESTED_COMFY=0.45.4"
 set "DINO_PAGE=https://huggingface.co/facebook/dinov3-vith16plus-pretrain-lvd1689m"
-set "UT_NAME=ComfyUI-UltraTex"
-set "UT_COMMIT=8137da52ed8352305cb7825b39c36a250bf2507a"
-set "UT_URL=https://github.com/visualbruno/ComfyUI-UltraTex/archive/%UT_COMMIT%.zip"
+set "UT_NAME=comfyui_ultratex_modular"
+set "UT_COMMIT=4dea3ff0c61e0ec0aa82808ffe2299f14089db92"
+set "UT_URL=https://github.com/Mstafa-awad/UltraTex-ComfyUI-nodes/archive/%UT_COMMIT%.zip"
+set "GG_NAME=ComfyUI-GGUF"
+set "GG_COMMIT=4dfc025e4be06ba9c210bd1189546f7af67f445d"
+set "GG_URL=https://github.com/city96/ComfyUI-GGUF/archive/%GG_COMMIT%.zip"
 set "WT_NAME=WTiVo-WatertightVoxel-ComfyuiNode"
 set "WT_COMMIT=fb9e9ea6a7deec965d3a4bf43ba7a4a9ff3856f3"
 set "WT_URL=https://github.com/Mstafa-awad/WTiVo-WatertightVoxel-ComfyuiNode/archive/%WT_COMMIT%.zip"
-set "KLEIN_PAGE=https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9b-fp8"
-set "KLEIN_REPO=black-forest-labs/FLUX.2-klein-base-9b-fp8"
-set "KLEIN_REV=5fe9c6fba7d9726cf82304f4986c51144ae5c2d7"
-set "KLEIN_FILE=flux-2-klein-base-9b-fp8.safetensors"
+set "KLEIN_PAGE=https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9B"
+set "KLEIN_FILE=flux-2-klein-base-9b-Q4_0.gguf"
+set "KLEIN_URL=https://huggingface.co/unsloth/FLUX.2-klein-base-9B-GGUF/resolve/62ede6c5d20015b63112603ae59b556ca75f5bc9/flux-2-klein-base-9b-Q4_0.gguf"
+set "KLEIN_SHA=02d4c2b55b5a6d4aca65eafd0f0eabe8c1e3837391042b6879be04eb99c7e116"
+set "QWEN_FILE=Qwen3-8B-Q6_K.gguf"
+set "QWEN_URL=https://huggingface.co/unsloth/Qwen3-8B-GGUF/resolve/a6adef130ffb23ddaf1a62fec9dced968c9bc482/Qwen3-8B-Q6_K.gguf"
+set "QWEN_SHA=0eaec718fdeab0f429dfa0ec481c090388811f5e63785ddb582292f4ef3c3827"
 set "COMFYORG=https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/1138ce884c8e977cdacacbe779784fec4426bb3f/split_files"
 set "UTX=https://www.modelscope.ai/models/Yibo-Zhang/UltraTex/resolve/master"
 set "LORA_SHA=3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c"
@@ -79,7 +88,7 @@ set "DEC_SHA=981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b"
 echo.
 echo  ============================================================
 echo    Direct3D-V3 + UltraTex for ComfyUI - installer by PixelArtistry
-echo    Direct3D-V3 nodes and WTiVo by Mstafa-awad, UltraTex nodes by visualbruno
+echo    Direct3D-V3, UltraTex Modular and WTiVo nodes by Mstafa-awad
 echo  ============================================================
 echo.
 
@@ -104,6 +113,7 @@ set "MODELS=%NODE_DIR%\models\Direct3D-V3"
 set "SNAP_BEFORE=%ROOT%\direct3d-v3_pip_before.txt"
 set "SNAP_AFTER=%ROOT%\direct3d-v3_pip_after.txt"
 set "UT_DIR=%CN%\%UT_NAME%"
+set "GG_DIR=%CN%\%GG_NAME%"
 set "WT_DIR=%CN%\%WT_NAME%"
 set "CMODELS=%COMFY%\models"
 set "UNZ=%COMFY%\_pixelartistry_install_tmp"
@@ -113,6 +123,7 @@ echo  ComfyUI found: %COMFY%
 
 rem ComfyUI must be closed. Port: the --port value in "Start ComfyUI.bat", else 8188.
 set "PORT="
+if exist "%T%\port.txt" del "%T%\port.txt"
 if exist "%ROOT%\Start ComfyUI.bat" "%PY%" -I -c "import sys,re;t=open(sys.argv[1],errors='ignore').read();m=re.findall(r'^(?!\s*(?:rem|::)).*?--port[= ]+(\d+)',t,re.M|re.I);print(m[-1] if m else '')" "%ROOT%\Start ComfyUI.bat" > "%T%\port.txt" 2>nul
 if exist "%T%\port.txt" set /p PORT=<"%T%\port.txt"
 if not defined PORT set "PORT=8188"
@@ -171,7 +182,7 @@ if errorlevel 1 (
 
 rem ---------------------------------------------------------------- 3. choices
 set "STAGE=1536"
-set "NEED_GB=32"
+set "NEED_GB=30"
 if defined NOPAUSE goto :stage_done
 if defined NOMODELS goto :stage_done
 echo.
@@ -181,7 +192,7 @@ echo          2 = 512, 1024 and 1536  ^(for cascade mode; 3.9 GB + the 3.4 GB im
 choice /c 12 /n /m "        Your choice [1/2] "
 if errorlevel 2 (
     set "STAGE=all"
-    set "NEED_GB=35"
+    set "NEED_GB=33"
 )
 :stage_done
 "%PY%" -I -c "import shutil,sys;free=shutil.disk_usage(sys.argv[1]).free/2**30;print(f'       Free disk space on the ComfyUI drive: {free:.0f} GB (needed: about {sys.argv[2]} GB for a new install)');sys.exit(0 if free>=float(sys.argv[2]) else 1)" "%CN%" "%NEED_GB%"
@@ -299,8 +310,10 @@ if errorlevel 1 (
 
 rem ---------------------------------------------------------------- 7. UltraTex and WTiVo node packs
 echo.
-echo  [5/9] UltraTex node pack ^(commit %UT_COMMIT:~0,7%^)...
-call :get_pack "%UT_NAME%" "%UT_DIR%" "%UT_URL%" "%UT_NAME%-%UT_COMMIT%" "nodes.py"
+echo  [5/9] UltraTex Modular node pack ^(commit %UT_COMMIT:~0,7%^) and ComfyUI-GGUF...
+call :get_pack "%UT_NAME%" "%UT_DIR%" "%UT_URL%" "UltraTex-ComfyUI-nodes-%UT_COMMIT%" "extension.py"
+if errorlevel 1 goto :fail
+call :get_pack "%GG_NAME%" "%GG_DIR%" "%GG_URL%" "%GG_NAME%-%GG_COMMIT%" "nodes.py"
 if errorlevel 1 goto :fail
 echo.
 echo  [6/9] WTiVo node pack ^(commit %WT_COMMIT:~0,7%^)...
@@ -313,7 +326,13 @@ echo.
 echo  [7/9] Python packages for UltraTex and WTiVo ^(only what is missing^)...
 "%PY%" -I -c "import sys,torch;v=sys.version_info[:2];print('       ComfyUI Python %%d.%%d, PyTorch %%s'%%(v[0],v[1],torch.__version__));sys.exit(0 if v==(3,12) else 3)"
 if errorlevel 3 echo        WARNING - WTiVo's binaries are built for Python 3.12. They will not load in this ComfyUI.
-"%PY%" -I -c "import importlib.util as u;print(' '.join(p for p in ('trimesh','moderngl','xatlas','scipy') if u.find_spec(p) is None))" > "%T%\missing.txt" 2>nul
+"%PY%" -I -c "import importlib.util as u,sys;sys.exit(0 if u.find_spec('triton') else 4)"
+if errorlevel 4 (
+    echo        WARNING - Triton is not installed in ComfyUI's Python. UltraTex needs it for its sparse generation.
+    echo                  This installer does not install Triton, because its version must match your PyTorch.
+    echo                  See the README of the UltraTex pack for the Windows pairing.
+)
+"%PY%" -I -c "import importlib.util as u;print(' '.join(p for p in ('trimesh','moderngl','glcontext','scipy','einops','psutil','threadpoolctl','gguf') if u.find_spec(p) is None))" > "%T%\missing.txt" 2>nul
 set "MISSING="
 set /p MISSING=<"%T%\missing.txt"
 if not defined MISSING (
@@ -345,7 +364,7 @@ if defined NOMODELS (
 )
 call :get_file "%CMODELS%\vae" "flux2-vae.safetensors" "%COMFYORG%/vae/flux2-vae.safetensors" ""
 if errorlevel 1 goto :fail
-call :get_file "%CMODELS%\text_encoders" "qwen_3_8b_fp8mixed.safetensors" "%COMFYORG%/text_encoders/qwen_3_8b_fp8mixed.safetensors" ""
+call :get_file "%CMODELS%\text_encoders" "%QWEN_FILE%" "%QWEN_URL%" "%QWEN_SHA%"
 if errorlevel 1 goto :fail
 call :get_file "%CMODELS%\loras" "ultratex_flux2.safetensors" "%UTX%/flux2/lora/dit_lora.safetensors" "%LORA_SHA%"
 if errorlevel 1 goto :fail
@@ -357,30 +376,21 @@ if exist "%CMODELS%\diffusion_models\%KLEIN_FILE%" (
 )
 echo.
 echo        LICENCE NOTICE - FLUX.2 klein base 9B
-echo        UltraTex paints with FLUX.2 klein base 9B from Black Forest Labs. The model is under the
-echo        FLUX Non-Commercial License and is gated on Hugging Face:
-echo          1. Open %KLEIN_PAGE%
-echo          2. Sign in, read the licence and accept it.
+echo        UltraTex paints with FLUX.2 klein base 9B from Black Forest Labs, here as a GGUF file
+echo        published by unsloth. The model is under the FLUX Non-Commercial License:
+echo          %KLEIN_PAGE%
 echo        Read the licence yourself before you use the model or its results for paid work.
 echo.
 if defined NOPAUSE goto :klein_get
-choice /c YN /n /m "        Have you accepted the licence and want to download it now (8.9 GB)? [Y/N] "
+choice /c YN /n /m "        Download it now (5.2 GB)? [Y/N] "
 if errorlevel 2 (
     echo        Skipped. Download %KLEIN_FILE% yourself into
     echo          %CMODELS%\diffusion_models
     goto :ut_models_done
 )
 :klein_get
-if not exist "%WORKER%" (
-    echo        The Direct3D-V3 worker environment is missing, so the download tool is not available.
-    echo        Download %KLEIN_FILE% yourself into %CMODELS%\diffusion_models
-    goto :ut_models_done
-)
-"%WORKER%" -c "import sys;from huggingface_hub import hf_hub_download;hf_hub_download(sys.argv[1],sys.argv[2],revision=sys.argv[3],local_dir=sys.argv[4])" "%KLEIN_REPO%" "%KLEIN_FILE%" "%KLEIN_REV%" "%CMODELS%\diffusion_models"
-if errorlevel 1 (
-    echo        Could not download %KLEIN_FILE% ^(no access yet, or no saved Hugging Face login^).
-    echo        Accept the licence, then run this installer again or download the file yourself.
-)
+call :get_file "%CMODELS%\diffusion_models" "%KLEIN_FILE%" "%KLEIN_URL%" "%KLEIN_SHA%"
+if errorlevel 1 goto :fail
 :ut_models_done
 
 rem ---------------------------------------------------------------- 7. verify
@@ -391,8 +401,9 @@ if errorlevel 1 (
     echo  [ERROR] The worker environment does not start. Delete "%NODE_DIR%\.runtime" and run this again.
     goto :fail
 )
-"%PY%" -I -c "import importlib.util as u;m=[p for p in ('trimesh','moderngl','xatlas','scipy') if u.find_spec(p) is None];print('       UltraTex / WTiVo packages:','all present' if not m else 'MISSING '+' '.join(m))"
-if not exist "%UT_DIR%\nodes.py" echo        WARNING - UltraTex nodes are missing.
+"%PY%" -I -c "import importlib.util as u;m=[p for p in ('trimesh','moderngl','glcontext','scipy','einops','psutil','threadpoolctl','gguf') if u.find_spec(p) is None];print('       UltraTex / WTiVo packages:','all present' if not m else 'MISSING '+' '.join(m))"
+if not exist "%UT_DIR%\extension.py" echo        WARNING - UltraTex Modular nodes are missing.
+if not exist "%GG_DIR%\nodes.py" echo        WARNING - ComfyUI-GGUF nodes are missing.
 if not exist "%WT_DIR%\comfy_node.py" echo        WARNING - WTiVo nodes are missing.
 "%PY%" -I -m pip freeze > "%SNAP_AFTER%" 2>nul
 fc "%SNAP_BEFORE%" "%SNAP_AFTER%" >nul 2>&1
@@ -429,6 +440,8 @@ echo.
 echo    The image-to-3D part of the workflows uses ComfyUI's own TRELLIS.2 nodes
 echo    and their models; the max-detail workflow also uses Qwen Image 2.1. If a
 echo    model is missing, ComfyUI lists it when you load the workflow.
+echo    One node in the workflows comes from ComfyUI-KJNodes; install it with
+echo    ComfyUI Manager if ComfyUI reports it missing.
 echo.
 echo    Results are saved to ComfyUI\output\Direct3D-V3.
 echo.
@@ -439,10 +452,12 @@ echo         environment and models^):
 echo           %NODE_DIR%
 echo           %UT_DIR%
 echo           %WT_DIR%
+echo         ComfyUI-GGUF is shared with other workflows; delete it only if you do not use it elsewhere:
+echo           %GG_DIR%
 echo      2b. Packages this installer added to ComfyUI's Python are the "+" lines
 echo          above. Remove one with:  "%PY%" -m pip uninstall NAME
 echo          UltraTex models are in %CMODELS%:
-echo          flux2-vae, qwen_3_8b_fp8mixed, ultratex_flux2*, %KLEIN_FILE%
+echo          flux2-vae, %QWEN_FILE%, ultratex_flux2*, %KLEIN_FILE%
 echo      3. Optional: delete the workflows this installer added in
 echo           %WF_DST%
 echo         and the two package lists direct3d-v3_pip_*.txt in

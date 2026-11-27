@@ -4,7 +4,10 @@
 # NOT TESTED. I have no Linux machine with an NVIDIA card. This script follows the same steps as the tested
 # Windows installer, but nobody has run it yet. Read it before you run it, and please report what happens.
 #
-# What it covers:  UltraTex nodes (visualbruno/ComfyUI-UltraTex, MIT) and the models UltraTex needs.
+# What it covers:  UltraTex Modular nodes (Mstafa-awad/UltraTex-ComfyUI-nodes, GPL-3.0), ComfyUI-GGUF
+#                   (city96, Apache-2.0) and the models they need. Whether the UltraTex Modular pack runs on
+#                   Linux is not known: its author developed and tested it on Windows. It also needs Triton,
+#                   which this script does not install.
 # What it cannot cover:
 #   - Direct3D-V3: the ComfyUI node pack (Mstafa-awad/Direct3D-V3_Comfyui_Nodes) is Windows-only. It ships a
 #     compiled Windows voxelizer and its setup refuses other systems. There is no Linux build to install.
@@ -16,15 +19,20 @@
 # The Python must be the one ComfyUI runs with (its venv). Safe to run twice: existing files are kept.
 set -euo pipefail
 
-UT_COMMIT="8137da52ed8352305cb7825b39c36a250bf2507a"
-UT_REPO="https://github.com/visualbruno/ComfyUI-UltraTex"
+UT_COMMIT="4dea3ff0c61e0ec0aa82808ffe2299f14089db92"
+UT_REPO="https://github.com/Mstafa-awad/UltraTex-ComfyUI-nodes"
+GG_COMMIT="4dfc025e4be06ba9c210bd1189546f7af67f445d"
+GG_REPO="https://github.com/city96/ComfyUI-GGUF"
 COMFYORG="https://huggingface.co/Comfy-Org/flux2-klein-9B/resolve/1138ce884c8e977cdacacbe779784fec4426bb3f/split_files"
 UTX="https://www.modelscope.ai/models/Yibo-Zhang/UltraTex/resolve/master"
 LORA_SHA="3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c"
 DEC_SHA="981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b"
-KLEIN_REPO="black-forest-labs/FLUX.2-klein-base-9b-fp8"
-KLEIN_REV="5fe9c6fba7d9726cf82304f4986c51144ae5c2d7"
-KLEIN_FILE="flux-2-klein-base-9b-fp8.safetensors"
+KLEIN_FILE="flux-2-klein-base-9b-Q4_0.gguf"
+KLEIN_URL="https://huggingface.co/unsloth/FLUX.2-klein-base-9B-GGUF/resolve/62ede6c5d20015b63112603ae59b556ca75f5bc9/flux-2-klein-base-9b-Q4_0.gguf"
+KLEIN_SHA="02d4c2b55b5a6d4aca65eafd0f0eabe8c1e3837391042b6879be04eb99c7e116"
+QWEN_FILE="Qwen3-8B-Q6_K.gguf"
+QWEN_URL="https://huggingface.co/unsloth/Qwen3-8B-GGUF/resolve/a6adef130ffb23ddaf1a62fec9dced968c9bc482/Qwen3-8B-Q6_K.gguf"
+QWEN_SHA="0eaec718fdeab0f429dfa0ec481c090388811f5e63785ddb582292f4ef3c3827"
 
 COMFY="${1:-}"
 NO_MODELS=0
@@ -59,22 +67,23 @@ SNAP_AFTER="$COMFY/ultratex_pip_after.txt"
 [ -f "$SNAP_BEFORE" ] || "$PY" -m pip freeze > "$SNAP_BEFORE"
 echo "Package list saved: $SNAP_BEFORE"
 
-# 1. node pack
-NODE="$COMFY/custom_nodes/ComfyUI-UltraTex"
-if [ -f "$NODE/nodes.py" ]; then
-    echo "UltraTex nodes already installed - left as they are."
-elif [ -e "$NODE" ]; then
-    echo "$NODE exists but is not a complete install. Rename or delete it yourself, then run this again."
-    exit 1
-else
-    command -v git >/dev/null || { echo "git is needed to download the node pack."; exit 1; }
-    git clone "$UT_REPO" "$NODE"
-    git -C "$NODE" checkout --quiet "$UT_COMMIT"
-    echo "Installed UltraTex nodes at commit ${UT_COMMIT:0:7}."
-fi
+# 1. node packs
+get_pack() {  # folder name, repo, commit, file that proves a complete install
+    local dir="$COMFY/custom_nodes/$1"
+    if [ -f "$dir/$4" ]; then echo "$1 already installed - left as it is."; return 0; fi
+    if [ -e "$dir" ]; then echo "$dir exists but is not a complete install. Rename or delete it yourself, then run this again."; exit 1; fi
+    command -v git >/dev/null || { echo "git is needed to download the node packs."; exit 1; }
+    git clone "$2" "$dir"
+    git -C "$dir" checkout --quiet "$3"
+    echo "Installed $1 at commit ${3:0:7}."
+}
+NODE="$COMFY/custom_nodes/comfyui_ultratex_modular"
+get_pack "comfyui_ultratex_modular" "$UT_REPO" "$UT_COMMIT" "extension.py"
+get_pack "ComfyUI-GGUF" "$GG_REPO" "$GG_COMMIT" "nodes.py"
+"$PY" -c "import importlib.util as u, sys; sys.exit(0 if u.find_spec('triton') else 1)"     || echo "WARNING: Triton is not installed in this Python. UltraTex needs it; this script does not install it."
 
 # 2. Python packages: only what is missing, never change an installed version
-MISSING="$("$PY" -c "import importlib.util as u; print(' '.join(p for p in ('trimesh','moderngl','xatlas','scipy') if u.find_spec(p) is None))")"
+MISSING="$("$PY" -c "import importlib.util as u; print(' '.join(p for p in ('trimesh','moderngl','glcontext','scipy','einops','psutil','threadpoolctl','gguf') if u.find_spec(p) is None))")"
 if [ -z "$MISSING" ]; then
     echo "Python packages: nothing missing."
 else
@@ -121,7 +130,7 @@ if [ "$NO_MODELS" = 1 ]; then
 else
     M="$COMFY/models"
     get_file "$M/vae" "flux2-vae.safetensors" "$COMFYORG/vae/flux2-vae.safetensors" ""
-    get_file "$M/text_encoders" "qwen_3_8b_fp8mixed.safetensors" "$COMFYORG/text_encoders/qwen_3_8b_fp8mixed.safetensors" ""
+    get_file "$M/text_encoders" "$QWEN_FILE" "$QWEN_URL" "$QWEN_SHA"
     get_file "$M/loras" "ultratex_flux2.safetensors" "$UTX/flux2/lora/dit_lora.safetensors" "$LORA_SHA"
     get_file "$M/ultratex" "ultratex_flux2_decoder.pt" "$UTX/flux2/decoder.pt" "$DEC_SHA"
     if [ -f "$M/diffusion_models/$KLEIN_FILE" ]; then
@@ -129,14 +138,12 @@ else
     else
         echo
         echo "LICENCE NOTICE - FLUX.2 klein base 9B"
-        echo "UltraTex paints with FLUX.2 klein base 9B (Black Forest Labs). It is under the FLUX Non-Commercial"
-        echo "License and gated on Hugging Face. Open https://huggingface.co/$KLEIN_REPO, sign in, read and accept"
-        echo "the licence. Read it yourself before you use the model or its results for paid work."
-        read -r -p "Have you accepted the licence and want to download it now (8.9 GB)? [y/N] " answer
+        echo "UltraTex paints with FLUX.2 klein base 9B (Black Forest Labs), here as a GGUF file published by unsloth."
+        echo "The model is under the FLUX Non-Commercial License: https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9B"
+        echo "Read it yourself before you use the model or its results for paid work."
+        read -r -p "Download it now (5.2 GB)? [y/N] " answer
         if [ "${answer:-n}" = "y" ] || [ "${answer:-n}" = "Y" ]; then
-            "$PY" -c "import sys; from huggingface_hub import hf_hub_download; hf_hub_download(sys.argv[1], sys.argv[2], revision=sys.argv[3], local_dir=sys.argv[4])" \
-                "$KLEIN_REPO" "$KLEIN_FILE" "$KLEIN_REV" "$M/diffusion_models" \
-                || echo "Could not download it (no access yet, or no saved Hugging Face login). Download it yourself into $M/diffusion_models"
+            get_file "$M/diffusion_models" "$KLEIN_FILE" "$KLEIN_URL" "$KLEIN_SHA"
         else
             echo "Skipped. Download $KLEIN_FILE yourself into $M/diffusion_models"
         fi
@@ -148,6 +155,6 @@ echo
 echo "Added or changed packages:"
 diff "$SNAP_BEFORE" "$SNAP_AFTER" | grep '^>' || echo "  none"
 echo
-echo "Done. HOW TO UNDO: close ComfyUI, delete $NODE, uninstall the packages listed above with"
+echo "Done. HOW TO UNDO: close ComfyUI, delete $NODE (and ComfyUI-GGUF if nothing else uses it), uninstall the packages listed above with"
 echo "  $PY -m pip uninstall NAME"
-echo "and delete the UltraTex models in $COMFY/models if you want (flux2-vae, qwen_3_8b_fp8mixed, ultratex_flux2*, $KLEIN_FILE)."
+echo "and delete the UltraTex models in $COMFY/models if you want (flux2-vae, $QWEN_FILE, ultratex_flux2*, $KLEIN_FILE)."

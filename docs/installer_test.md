@@ -39,3 +39,24 @@ It now unpacks into a temporary folder inside `ComfyUI` and moves from there.
 - Starting ComfyUI on the test folder: the fresh node packs were not loaded by a ComfyUI there. The same
   commits are installed in the working ComfyUI that produced the results in the README.
 - Any other PC.
+
+## Second test, 27 November 2026 (UltraTex Modular nodes)
+
+The texture stage moved to MostAadTech's UltraTex Modular nodes, so the installer now installs that pack and
+ComfyUI-GGUF instead of visualbruno's ComfyUI-UltraTex. Same test folder, same command (`NoPause NoModels`).
+
+| Step | Result |
+|---|---|
+| Direct3D-V3 pack and environment | Found from the first test, left as they were |
+| UltraTex Modular pack and ComfyUI-GGUF from GitHub at the pinned commits | Passed |
+| WTiVo pack | Found, left as it was |
+| Python packages (trimesh, moderngl, glcontext, scipy, einops, psutil, threadpoolctl, gguf) | "Nothing missing" |
+| Package list of ComfyUI's Python afterwards | Unchanged |
+| Six workflows copied | Passed |
+
+Found and fixed on the way: the installer reused a port file left in the temp folder by an earlier run, so it
+checked the wrong port and refused to start while another ComfyUI was running elsewhere.
+
+Not covered, as before: every model download (now including the two GGUF files), installing missing packages,
+the interactive questions, any other PC. The fresh UltraTex Modular pack was not loaded by a ComfyUI in the test
+folder; the same commit is installed in the working ComfyUI.
