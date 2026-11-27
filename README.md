@@ -8,20 +8,22 @@ This pack is the installer and the workflows from my video. Everything here was 
 
 ## Which workflow?
 
-| Workflow | What it does | Extra nodes it needs |
-|---|---|---|
-| **direct3d-v3_default** | image > TRELLIS.2 > remesh twice > Direct3D-V3 at 1536. **Start here.** | Direct3D-V3 |
-| **direct3d-v3_max_detail** | the same, with the recipe that gave the most detail in my tests: clay version of your image as the reference, 16 steps, `fdg` guidance at 9 | Direct3D-V3; Qwen Image 2.1 models |
-| **direct3d-v3_low_vram** | the default with `max_tokens` at 75,000 and the value per card size in a note | Direct3D-V3 |
-| **direct3d-v3_multiview** | your own mesh + front and back image (add left, right, top, bottom yourself) | Direct3D-V3 |
-| **direct3d-v3_your_mesh** | refine a mesh that is already on disk | Direct3D-V3 |
-| **3D Char 1 - Optimized** | image > TRELLIS.2 > WTiVo cleanup > Direct3D-V3 > UltraTex texture | Direct3D-V3, UltraTex, WTiVo, **ComfyUI-Trellis2, KJNodes** |
-| **3D Char 2 - Multiview** | the same with back, left and right images | as above |
-| **3D Char 3 - Low-poly game character** | the same, decimated to 20,000 triangles before texturing | as above |
+All of them share one canvas: image > TRELLIS.2 > cleanup switch (WTiVo or remesh twice) > Direct3D-V3 > 3D previews > UltraTex texture stage. Do not want a texture? Select groups 7 to 9 and bypass them.
 
-The three "3D Char" workflows use two helper packs this installer does **not** install, because their requirements touch packages many other nodes share (OpenCV): [visualbruno/ComfyUI-Trellis2](https://github.com/visualbruno/ComfyUI-Trellis2) (two utility nodes) and [kijai/ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) (one node). Install them with ComfyUI Manager if ComfyUI reports missing nodes.
+| Workflow | What is different |
+|---|---|
+| **direct3d-v3_1_default** | The standard pipeline: WTiVo cleanup, Direct3D-V3 cascade with 16 steps, UltraTex texture. **Start here.** |
+| **direct3d-v3_2_max_detail** | Most detail: clay version of your image as the reference (Qwen Image 2.1), raw coarse mesh, single stage, 16 steps, `fdg` guidance at 9. Needs the Qwen Image 2.1 models. |
+| **direct3d-v3_3_multiview** | Adds back, left and right images for Direct3D-V3. |
+| **direct3d-v3_4_low_poly** | Decimates to 20,000 triangles before texturing: a game-ready character. |
+| **direct3d-v3_5_low_vram** | `max_tokens` at 75,000 and the texture stage bypassed; the note lists the value per card size. |
+| **direct3d-v3_6_your_mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
 
-The image-to-3D part of every workflow uses **ComfyUI's own TRELLIS.2 nodes** and their models.
+> **State of this branch:** workflows 1 to 5 were assembled from the tested workflows by script on 27 November and have **not been opened in ComfyUI or run yet**. The branch `main` holds the previous set.
+
+Workflows 1 to 5 need Direct3D-V3, UltraTex and WTiVo (this installer) plus two helper packs this installer does **not** install, because their requirements touch packages many other nodes share (OpenCV): [visualbruno/ComfyUI-Trellis2](https://github.com/visualbruno/ComfyUI-Trellis2) (two utility nodes) and [kijai/ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) (one node). Install them with ComfyUI Manager if ComfyUI reports missing nodes.
+
+The image-to-3D part uses **ComfyUI's own TRELLIS.2 nodes** and their models.
 
 ## Results
 
@@ -100,14 +102,14 @@ About the coarse mesh: a 512 mesh worked almost as well as a 1024 one, but the s
 Tested on the PC named above:
 
 - All Direct3D-V3 numbers and images on this page, on ten models.
-- `direct3d-v3_max_detail` end to end from a fresh ComfyUI start (507 s for the whole job).
-- The texture stage of "3D Char 1" on four models (271 to 329 s each).
+- The max-detail recipe as a workflow end to end from a fresh ComfyUI start (507 s for the whole job), in its earlier form without the texture stage.
+- The UltraTex texture stage on four models (271 to 329 s each).
 - The installer on a clean folder with `NoModels`: see `docs/installer_test.md`.
 
 Not tested:
 
 - **The model downloads of this installer** (my PC already had every model).
-- The other workflow files as a complete run from a fresh start. They load without errors and their node chains ran as separate jobs.
+- **The workflow files of this branch** as they are: not opened in ComfyUI and not run yet. Their parts ran in the workflows they were built from.
 - Any other GPU; real 6, 8 or 12 GB cards; a PC with 32 GB RAM or less; Windows 10; a first-time Hugging Face login.
 - WTiVo on a card older than the RTX 50 series.
 - The Linux script.
@@ -121,7 +123,7 @@ Not tested:
 - **UltraTex** (Yibo Zhang et al.) and the ComfyUI-UltraTex nodes (visualbruno): MIT for the node code; see the UltraTex project for its weights.
 - **FLUX.2 klein base 9B** (Black Forest Labs): **FLUX Non-Commercial License**, gated. Not included. Read the licence yourself before you use the model or its results for paid work.
 - **WTiVo** (Mstafa-awad): GPL-3.0-or-later.
-- The "3D Char" workflows include MostAadTech's support note; please keep it if you share them.
+- Workflows 1 to 5 include MostAadTech's support note; please keep it if you share them.
 
 No model weights are in this repository. Every file is downloaded from its original publisher.
 

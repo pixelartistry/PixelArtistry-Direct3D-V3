@@ -22,7 +22,7 @@ What was run, and what it does and does not prove.
 | Python packages for UltraTex and WTiVo | "Nothing missing": this Python already had them, so the install path for missing packages did not run |
 | Model downloads | Skipped on purpose (`NoModels`) |
 | Package list of ComfyUI's Python afterwards | Unchanged |
-| Eight workflows copied | Passed |
+| Eight workflows copied (the set of 26 November, see branch `main`) | Passed |
 | A real Direct3D-V3 refinement with the fresh environment (worker started by hand, dwarf at 1024, models linked from the working install) | Passed: 31,858 tokens, 4.86 million triangles |
 
 ## The bug this test found
