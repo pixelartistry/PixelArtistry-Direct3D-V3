@@ -423,7 +423,7 @@ for %%F in ("%WF_SRC%\*.json") do call :copy_workflow "%%~fF" "%%~nxF"
 rem ---------------------------------------------------------------- summary
 echo.
 echo  ============================================================
-echo    Done. Start ComfyUI and open a workflow that starts with "direct3d-v3_".
+echo    Done. Start ComfyUI and open "PixelArtistry_Direct3D_01_Default".
 echo  ============================================================
 echo.
 echo    The image-to-3D part of the workflows uses ComfyUI's own TRELLIS.2 nodes

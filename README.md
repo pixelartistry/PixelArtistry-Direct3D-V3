@@ -12,12 +12,12 @@ All of them share one canvas: image > TRELLIS.2 > cleanup switch (WTiVo or remes
 
 | Workflow | What is different |
 |---|---|
-| **direct3d-v3_1_default** | The standard pipeline: WTiVo cleanup, Direct3D-V3 cascade with 16 steps, UltraTex texture. **Start here.** |
-| **direct3d-v3_2_max_detail** | Most detail: clay version of your image as the reference (Qwen Image 2.1), raw coarse mesh, single stage, 16 steps, `fdg` guidance at 9. Needs the Qwen Image 2.1 models. |
-| **direct3d-v3_3_multiview** | Adds back, left and right images for Direct3D-V3. |
-| **direct3d-v3_4_low_poly** | Decimates to 20,000 triangles before texturing: a game-ready character. |
-| **direct3d-v3_5_low_vram** | `max_tokens` at 75,000 and the texture stage bypassed; the note lists the value per card size. |
-| **direct3d-v3_6_your_mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
+| **PixelArtistry_Direct3D_01_Default** | The standard pipeline: WTiVo cleanup, Direct3D-V3 cascade with 16 steps, UltraTex texture. **Start here.** |
+| **PixelArtistry_Direct3D_02_Max_Detail** | Most detail: clay version of your image as the reference (Qwen Image 2.1), raw coarse mesh, single stage, 16 steps, `fdg` guidance at 9. Needs the Qwen Image 2.1 models. |
+| **PixelArtistry_Direct3D_03_Multiview** | Adds back, left and right images for Direct3D-V3. |
+| **PixelArtistry_Direct3D_04_Low_Poly** | Decimates to 20,000 triangles before texturing: a game-ready character. |
+| **PixelArtistry_Direct3D_05_Low_VRAM** | `max_tokens` at 75,000 and the texture stage bypassed; the note lists the value per card size. |
+| **PixelArtistry_Direct3D_06_Your_Mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
 
 > **State:** workflows 1 to 5 were assembled from the tested workflows by script on 27 November and have **not been opened in ComfyUI or run yet**. The set of 26 November is in the history (commit `d859f8a`).
 
