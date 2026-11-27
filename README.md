@@ -19,7 +19,7 @@ All of them share one canvas: image > TRELLIS.2 > cleanup switch (WTiVo or remes
 | **direct3d-v3_5_low_vram** | `max_tokens` at 75,000 and the texture stage bypassed; the note lists the value per card size. |
 | **direct3d-v3_6_your_mesh** | Refine a mesh that is already on disk. Direct3D-V3 only. |
 
-> **State of this branch:** workflows 1 to 5 were assembled from the tested workflows by script on 27 November and have **not been opened in ComfyUI or run yet**. The branch `main` holds the previous set.
+> **State:** workflows 1 to 5 were assembled from the tested workflows by script on 27 November and have **not been opened in ComfyUI or run yet**. The set of 26 November is in the history (commit `d859f8a`).
 
 Workflows 1 to 5 need Direct3D-V3, UltraTex and WTiVo (this installer) plus two helper packs this installer does **not** install, because their requirements touch packages many other nodes share (OpenCV): [visualbruno/ComfyUI-Trellis2](https://github.com/visualbruno/ComfyUI-Trellis2) (two utility nodes) and [kijai/ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) (one node). Install them with ComfyUI Manager if ComfyUI reports missing nodes.
 
@@ -109,7 +109,7 @@ Tested on the PC named above:
 Not tested:
 
 - **The model downloads of this installer** (my PC already had every model).
-- **The workflow files of this branch** as they are: not opened in ComfyUI and not run yet. Their parts ran in the workflows they were built from.
+- **The workflow files** as they are: not opened in ComfyUI and not run yet. Their parts ran in the workflows they were built from.
 - Any other GPU; real 6, 8 or 12 GB cards; a PC with 32 GB RAM or less; Windows 10; a first-time Hugging Face login.
 - WTiVo on a card older than the RTX 50 series.
 - The Linux script.
